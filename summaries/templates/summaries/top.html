@@ -1,0 +1,54 @@
+{% extends 'core/layout.html' %}
+{% block content %}
+<h1>販売統計情報</h1>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'core:top' %}">管理 TOP</a></li>
+        <li class="breadcrumb-item active" aria-current="page">販売統計情報</li>
+    </ol>
+</nav>
+<h2>累計</h2>
+<p class="h3">{{ total }}円</p>
+<h2>月別</h2>
+<div class="fsms-table">
+    <table class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>月</th>
+            <th>売上</th>
+            <th>内訳</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for monthly in monthly_list %}
+        <tr>
+            <td>{{ monthly.sold_at }}</td>
+            <td>{{ monthly.amount }}円</td>
+            <td>{{ monthly.fruits }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<h2>日別</h2>
+<div class="fsms-table">
+    <table class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>日</th>
+            <th>売上</th>
+            <th>内訳</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for daily in daily_list %}
+        <tr>
+            <td>{{ daily.sold_at }}</td>
+            <td>{{ daily.amount }}円</td>
+            <td>{{ daily.fruits }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
