@@ -3,4 +3,4 @@ from django.views.generic import TemplateView
 
 
 class TopView(LoginRequiredMixin, TemplateView):
-    template_name = 'core/top.html'
+    template_name = "core/top.html"

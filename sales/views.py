@@ -15,73 +15,73 @@ from .models import Sale
 
 
 class IndexView(LoginRequiredMixin, ListView):
-    template_name = 'sales/top.html'
+    template_name = "sales/top.html"
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
-        context['form'] = UploadFileForm
+        context["form"] = UploadFileForm
         return context
 
     def get_queryset(self):
-        return Sale.objects.order_by('-sold_at').all()
+        return Sale.objects.order_by("-sold_at").all()
 
 
 class NewView(LoginRequiredMixin, CreateView):
     model = Sale
     form_class = SaleForm
-    template_name = 'sales/form.html'
-    success_url = reverse_lazy('sales:top')
+    template_name = "sales/form.html"
+    success_url = reverse_lazy("sales:top")
 
     def form_valid(self, form):
-        fruit = Fruit.objects.get(id=self.request.POST['fruit_list'])
+        fruit = Fruit.objects.get(id=self.request.POST["fruit_list"])
         form.instance.fruit = fruit
         form.instance.amount = fruit.price * form.instance.number
         return super(NewView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super(NewView, self).get_context_data(**kwargs)
-        context['title'] = '販売情報登録'
-        context['submit_text'] = '登録'
+        context["title"] = "販売情報登録"
+        context["submit_text"] = "登録"
         return context
 
 
 class EditView(LoginRequiredMixin, UpdateView):
     model = Sale
     form_class = SaleForm
-    template_name = 'sales/form.html'
-    success_url = reverse_lazy('sales:top')
+    template_name = "sales/form.html"
+    success_url = reverse_lazy("sales:top")
 
     def form_valid(self, form):
-        fruit = Fruit.objects.get(id=self.request.POST['fruit_list'])
+        fruit = Fruit.objects.get(id=self.request.POST["fruit_list"])
         form.instance.fruit = fruit
         form.instance.amount = fruit.price * form.instance.number
         return super(EditView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super(EditView, self).get_context_data(**kwargs)
-        context['title'] = '販売情報編集'
-        context['submit_text'] = '編集'
+        context["title"] = "販売情報編集"
+        context["submit_text"] = "編集"
         return context
 
 
 @login_required
 def upload(request):
-    if request.method != 'POST':
-        return redirect('sales:top')
+    if request.method != "POST":
+        return redirect("sales:top")
 
     form = UploadFileForm(request.POST, request.FILES)
     if not form.is_valid():
-        return redirect('sales:top')
+        return redirect("sales:top")
 
     try:
-        uploaded_file = request.FILES['file'].read().decode('utf-8')
+        uploaded_file = request.FILES["file"].read().decode("utf-8")
         reader = csv.reader(uploaded_file.splitlines())
         for row in reader:
             submit_row(row)
     except Exception as e:
         logging.debug(e)
 
-    return redirect('sales:top')
+    return redirect("sales:top")
 
 
 def submit_row(row):
@@ -109,7 +109,7 @@ def submit_row(row):
         sale.fruit = fruit
         sale.number = number
         sale.amount = amount
-        sale.sold_at = timezone.make_aware(datetime.strptime(row[3], '%Y-%m-%d %H:%M'))
+        sale.sold_at = timezone.make_aware(datetime.strptime(row[3], "%Y-%m-%d %H:%M"))
         sale.save()
     except Exception as e:
         logging.debug(e)
@@ -117,7 +117,7 @@ def submit_row(row):
 
 @login_required
 def delete(request, pk):
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
             sale = Sale.objects.get(id=pk)
         except Sale.DoesNotExist:
@@ -125,4 +125,4 @@ def delete(request, pk):
         else:
             sale.delete()
 
-    return redirect('sales:top')
+    return redirect("sales:top")

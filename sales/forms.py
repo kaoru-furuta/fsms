@@ -13,22 +13,20 @@ def get_fruit_list():
 
 class SaleForm(forms.ModelForm):
     fruit_list = forms.ChoiceField(
-        choices=get_fruit_list,
-        widget=forms.Select(attrs={'class': 'form-control'})
+        choices=get_fruit_list, widget=forms.Select(attrs={"class": "form-control"})
     )
     number = forms.IntegerField(
-        min_value=1,
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
+        min_value=1, widget=forms.NumberInput(attrs={"class": "form-control"})
     )
     sold_at = forms.DateTimeField(
         initial=timezone.now,
-        input_formats=['%Y-%m-%dT%H:%M'],
-        widget=forms.DateTimeInput(attrs={'class': 'form-control'})
+        input_formats=["%Y-%m-%dT%H:%M"],
+        widget=forms.DateTimeInput(attrs={"class": "form-control"}),
     )
 
     class Meta:
         model = Sale
-        fields = ('fruit_list', 'number', 'sold_at')
+        fields = ("fruit_list", "number", "sold_at")
 
 
 class UploadFileForm(forms.Form):

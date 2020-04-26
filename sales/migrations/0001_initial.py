@@ -10,18 +10,28 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('fruits', '0001_initial'),
+        ("fruits", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Sale',
+            name="Sale",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('number', models.PositiveIntegerField(validators=[django.core.validators.MinValueValidator(1)])),
-                ('amount', models.IntegerField()),
-                ('sold_at', models.DateTimeField()),
-                ('fruit', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='fruits.Fruit')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                (
+                    "number",
+                    models.PositiveIntegerField(
+                        validators=[django.core.validators.MinValueValidator(1)]
+                    ),
+                ),
+                ("amount", models.IntegerField()),
+                ("sold_at", models.DateTimeField()),
+                (
+                    "fruit",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="fruits.Fruit"
+                    ),
+                ),
             ],
         ),
     ]
