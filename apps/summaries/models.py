@@ -1,4 +1,5 @@
 from itertools import groupby
+from typing import Any, List
 
 from sales.models import Sale
 
@@ -19,15 +20,15 @@ class Summary:
         result_list = []
 
         sorted_list = sorted(self.sale_list, key=lambda x: x.sold_at, reverse=True)
-        for key, group in groupby(
+        for key, values in groupby(
             sorted_list, lambda x: x.sold_at.strftime(date_format)
         ):
-            group = list(group)
-            fruit_list = self.calc_fruit(group)
+            groups: List[Any] = list(values)
+            fruit_list = self.calc_fruit(groups)
             result_list.append(
                 {
                     "sold_at": key,
-                    "amount": sum(sale.amount for sale in group),
+                    "amount": sum(sale.amount for sale in groups),
                     "fruits": " ".join(
                         f'{fruit["name"]}:{fruit["amount"]}円({fruit["number"]})'
                         for fruit in fruit_list
@@ -42,13 +43,13 @@ class Summary:
         fruit_list = []
 
         sorted_list = sorted(sale_list, key=lambda x: x.fruit.name)
-        for key, group in groupby(sorted_list, lambda x: x.fruit.name):
-            group = list(group)
+        for key, values in groupby(sorted_list, lambda x: x.fruit.name):
+            groups: List[Any] = list(values)
             fruit_list.append(
                 {
                     "name": key,
-                    "number": sum(g.number for g in group),
-                    "amount": sum(g.amount for g in group),
+                    "number": sum(g.number for g in groups),
+                    "amount": sum(g.amount for g in groups),
                 }
             )
 

@@ -3,3 +3,4 @@ venv/
 __pycache__/
 logs/
 .tox/
+.mypy_cache/
