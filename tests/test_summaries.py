@@ -24,6 +24,6 @@ def test_top(client):
 def test_top_with_no_login():
     client = Client()
 
-    response = client.get("/", follow=True)
+    response = client.get("/summary/", follow=True)
 
     assert response.status_code == 200

@@ -35,14 +35,6 @@ def test_new(client):
     assert response.status_code == 200
 
 
-def test_new_with_no_login():
-    client = Client()
-
-    response = client.get("/sale/new/", follow=True)
-
-    assert response.status_code == 200
-
-
 def test_new_submit(client):
     response = client.post(
         "/sale/new/",
@@ -52,18 +44,6 @@ def test_new_submit(client):
 
     assert response.status_code == 200
     assert "2018/12/13 12:13" in response.content.decode("utf-8")
-
-
-def test_new_submit_with_no_login():
-    client = Client()
-
-    response = client.post(
-        "/sale/new/",
-        data={"fruit_list": 1, "number": 1, "sold_at": "2018-12-13T12:13"},
-        follow=True,
-    )
-
-    assert response.status_code == 200
 
 
 def test_new_submit_with_wrong_data(client):
@@ -82,14 +62,6 @@ def test_edit(client):
     assert response.status_code == 200
 
 
-def test_edit_with_no_login():
-    client = Client()
-
-    response = client.get("/sale/1/edit/", follow=True)
-
-    assert response.status_code == 200
-
-
 def test_edit_submit(client):
     response = client.post(
         "/sale/1/edit/",
@@ -99,18 +71,6 @@ def test_edit_submit(client):
 
     assert response.status_code == 200
     assert "2018/12/14 12:14" in response.content.decode("utf-8")
-
-
-def test_edit_submit_with_no_login():
-    client = Client()
-
-    response = client.post(
-        "/sale/1/edit/",
-        data={"fruit_list": 1, "number": 1, "sold_at": "2018-12-14T12:14"},
-        follow=True,
-    )
-
-    assert response.status_code == 200
 
 
 def test_edit_submit_with_wrong_data(client):
@@ -128,14 +88,6 @@ def test_delete_submit(client):
 
     assert response.status_code == 200
     assert "みかん" not in response.content.decode("utf-8")
-
-
-def test_delete_with_no_login():
-    client = Client()
-
-    response = client.post("/sale/1/delete/", follow=True)
-
-    assert response.status_code == 200
 
 
 def test_delete_with_wrong_data(client):
