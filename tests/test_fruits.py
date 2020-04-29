@@ -1,5 +1,6 @@
 import pytest
 from django.conf import settings
+from django.core.management import call_command
 from django.test import Client
 from model_bakery import baker
 
@@ -130,3 +131,15 @@ def test_delete_with_wrong_data(client):
 
     assert response.status_code == 200
     assert "みかん" in response.content.decode("utf-8")
+
+
+def test_command_update_prices():
+    # arrange
+    fruit = baker.make("fruits.Fruit", price=100)
+
+    # act
+    call_command("update_price")
+
+    # assert
+    fruit.refresh_from_db()
+    assert fruit.price == 200
