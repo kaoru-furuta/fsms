@@ -19,8 +19,10 @@ class IndexView(LoginRequiredMixin, ListView):
     template_name = "sales/top.html"
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        context = super(IndexView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+
         context["form"] = UploadFileForm
+
         return context
 
     def get_queryset(self):
@@ -37,12 +39,14 @@ class NewView(LoginRequiredMixin, CreateView):
         fruit = Fruit.objects.get(id=self.request.POST["fruit_list"])
         form.instance.fruit = fruit
         form.instance.amount = fruit.price * form.instance.number
-        return super(NewView, self).form_valid(form)
+
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
-        context = super(NewView, self).get_context_data(**kwargs)
-        context["title"] = "販売情報登録"
-        context["submit_text"] = "登録"
+        context = super().get_context_data(**kwargs)
+
+        context.update({"title": "販売情報登録", "submit_text": "登録"})
+
         return context
 
 
@@ -56,12 +60,14 @@ class EditView(LoginRequiredMixin, UpdateView):
         fruit = Fruit.objects.get(id=self.request.POST["fruit_list"])
         form.instance.fruit = fruit
         form.instance.amount = fruit.price * form.instance.number
-        return super(EditView, self).form_valid(form)
+
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
-        context = super(EditView, self).get_context_data(**kwargs)
-        context["title"] = "販売情報編集"
-        context["submit_text"] = "編集"
+        context = super().get_context_data(**kwargs)
+
+        context.update({"title": "販売情報編集", "submit_text": "編集"})
+
         return context
 
 

@@ -22,9 +22,10 @@ class NewView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("fruits:top")
 
     def get_context_data(self, **kwargs):
-        context = super(NewView, self).get_context_data(**kwargs)
-        context["title"] = "果物登録"
-        context["submit_text"] = "登録"
+        context = super().get_context_data(**kwargs)
+
+        context.update({"title": "果物登録", "submit_text": "登録"})
+
         return context
 
 
@@ -35,9 +36,10 @@ class EditView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy("fruits:top")
 
     def get_context_data(self, **kwargs):
-        context = super(EditView, self).get_context_data(**kwargs)
-        context["title"] = "果物編集"
-        context["submit_text"] = "編集"
+        context = super().get_context_data(**kwargs)
+
+        context.update({"title": "果物編集", "submit_text": "編集"})
+
         return context
 
 
