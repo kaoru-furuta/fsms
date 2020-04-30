@@ -24,7 +24,7 @@ def delete(request, pk):
             pass  # nothing to do
         else:
             sale.delete()
-            messages.error(request, f"販売情報が削除されました")
+            messages.error(request, f"販売情報が削除されました", extra_tags="danger")
 
     return redirect("sales:top")
 

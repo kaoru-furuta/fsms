@@ -56,6 +56,6 @@ def delete(request, pk):
             pass  # nothing to do
         else:
             fruit.delete()
-            messages.error(request, f"{fruit.name} が削除されました")
+            messages.error(request, f"{fruit.name} が削除されました", extra_tags="danger")
 
     return redirect("fruits:top")
