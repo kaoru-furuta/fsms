@@ -1,5 +1,7 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView
@@ -15,11 +17,12 @@ class IndexView(LoginRequiredMixin, ListView):
         return Fruit.objects.order_by("-updated_at").all()
 
 
-class NewView(LoginRequiredMixin, CreateView):
+class NewView(SuccessMessageMixin, LoginRequiredMixin, CreateView):
     model = Fruit
     form_class = FruitForm
     template_name = "fruits/form.html"
     success_url = reverse_lazy("fruits:top")
+    success_message = "%(name)s が登録されました"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -29,11 +32,12 @@ class NewView(LoginRequiredMixin, CreateView):
         return context
 
 
-class EditView(LoginRequiredMixin, UpdateView):
+class EditView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
     model = Fruit
     form_class = FruitForm
     template_name = "fruits/form.html"
     success_url = reverse_lazy("fruits:top")
+    success_message = "%(name)s が編集されました"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -52,5 +56,6 @@ def delete(request, pk):
             pass  # nothing to do
         else:
             fruit.delete()
+            messages.error(request, f"{fruit.name} が削除されました")
 
     return redirect("fruits:top")

@@ -99,7 +99,7 @@ def test_delete_with_wrong_data(client):
 
 def test_upload_submit(client):
     with open("tests/upload.csv") as fr:
-        response = client.post("/sale/upload/", data={"file": fr}, follow=True)
+        response = client.post("/sale/", data={"file": fr}, follow=True)
 
     assert response.status_code == 200
     assert "2020/11/11 11:11" in response.content.decode("utf-8")

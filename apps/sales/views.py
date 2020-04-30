@@ -1,13 +1,13 @@
 import csv
-import logging
-from datetime import datetime
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.utils import timezone
 from django.views.generic import CreateView, ListView, UpdateView
+from django.views.generic.edit import FormMixin
 
 from fruits.models import Fruit
 
@@ -15,8 +15,25 @@ from .forms import SaleForm, UploadFileForm
 from .models import Sale
 
 
-class IndexView(LoginRequiredMixin, ListView):
+@login_required
+def delete(request, pk):
+    if request.method == "POST":
+        try:
+            sale = Sale.objects.get(id=pk)
+        except Sale.DoesNotExist:
+            pass  # nothing to do
+        else:
+            sale.delete()
+            messages.error(request, f"販売情報が削除されました")
+
+    return redirect("sales:top")
+
+
+class IndexView(SuccessMessageMixin, LoginRequiredMixin, FormMixin, ListView):
     template_name = "sales/top.html"
+    form_class = UploadFileForm
+    success_url = reverse_lazy("sales:top")
+    success_message = "販売情報が一括登録されました"
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -28,12 +45,47 @@ class IndexView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Sale.objects.order_by("-sold_at").all()
 
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
 
-class NewView(LoginRequiredMixin, CreateView):
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        try:
+            uploaded_file = form.cleaned_data["file"].read().decode("utf-8")
+            reader = csv.reader(uploaded_file.splitlines())
+        except Exception as e:
+            messages.error(self.request, e)
+            return super().form_valid(form)
+
+        for i, row in enumerate(reader, 1):
+            fruit = Fruit.objects.filter(name=row[0]).first()
+            form = SaleForm(
+                {
+                    "fruit_list": fruit.id if fruit else None,
+                    "number": row[1],
+                    "sold_at": row[3],
+                }
+            )
+            if form.is_valid():
+                form.instance.fruit = fruit
+                form.instance.amount = fruit.price * form.instance.number
+                form.save()
+            else:
+                messages.error(self.request, f"{i} 行目でエラーです。")
+
+        return super().form_valid(form)
+
+
+class NewView(SuccessMessageMixin, LoginRequiredMixin, CreateView):
     model = Sale
     form_class = SaleForm
     template_name = "sales/form.html"
     success_url = reverse_lazy("sales:top")
+    success_message = "販売情報が登録されました"
 
     def form_valid(self, form):
         fruit = Fruit.objects.get(id=self.request.POST["fruit_list"])
@@ -50,11 +102,12 @@ class NewView(LoginRequiredMixin, CreateView):
         return context
 
 
-class EditView(LoginRequiredMixin, UpdateView):
+class EditView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
     model = Sale
     form_class = SaleForm
     template_name = "sales/form.html"
     success_url = reverse_lazy("sales:top")
+    success_message = "販売情報が編集されました"
 
     def form_valid(self, form):
         fruit = Fruit.objects.get(id=self.request.POST["fruit_list"])
@@ -69,67 +122,3 @@ class EditView(LoginRequiredMixin, UpdateView):
         context.update({"title": "販売情報編集", "submit_text": "編集"})
 
         return context
-
-
-@login_required
-def upload(request):
-    if request.method != "POST":
-        return redirect("sales:top")
-
-    form = UploadFileForm(request.POST, request.FILES)
-    if not form.is_valid():
-        return redirect("sales:top")
-
-    try:
-        uploaded_file = request.FILES["file"].read().decode("utf-8")
-        reader = csv.reader(uploaded_file.splitlines())
-        for row in reader:
-            submit_row(row)
-    except Exception as e:
-        logging.debug(e)
-
-    return redirect("sales:top")
-
-
-def submit_row(row):
-    if len(row) != 4:
-        return
-
-    try:
-        fruit = Fruit.objects.get(name=row[0])
-    except (Fruit.DoesNotExist, Fruit.MultipleObjectsReturned) as e:
-        logging.debug(e)
-        return
-
-    try:
-        number = int(row[1])
-        amount = int(row[2])
-    except ValueError as e:
-        logging.debug(e)
-        return
-    else:
-        if number <= 0:  # 個数が 0 以下は処理しない
-            return
-
-    try:
-        sale = Sale()
-        sale.fruit = fruit
-        sale.number = number
-        sale.amount = amount
-        sale.sold_at = timezone.make_aware(datetime.strptime(row[3], "%Y-%m-%d %H:%M"))
-        sale.save()
-    except Exception as e:
-        logging.debug(e)
-
-
-@login_required
-def delete(request, pk):
-    if request.method == "POST":
-        try:
-            sale = Sale.objects.get(id=pk)
-        except Sale.DoesNotExist:
-            pass  # nothing to do
-        else:
-            sale.delete()
-
-    return redirect("sales:top")
