@@ -48,10 +48,16 @@ class EditView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
 
 
 @login_required
-def delete(request, pk):
-    if request.method == "POST":
+def delete(request):
+    if request.method != "POST":
+        return redirect("fruits:top")
+
+    for k, v in request.POST.items():
+        if not k.startswith("option-") or v != "delete":
+            continue
+        id_ = int(k.replace("option-", ""))
         try:
-            fruit = Fruit.objects.get(id=pk)
+            fruit = Fruit.objects.get(id=id_)
         except Fruit.DoesNotExist:
             pass  # nothing to do
         else:

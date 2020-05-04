@@ -16,15 +16,26 @@ from .models import Sale
 
 
 @login_required
-def delete(request, pk):
-    if request.method == "POST":
+def delete(request):
+    if request.method != "POST":
+        return redirect("sales:top")
+
+    count = 0
+
+    for k, v in request.POST.items():
+        if not k.startswith("option-") or v != "delete":
+            continue
+        id_ = int(k.replace("option-", ""))
         try:
-            sale = Sale.objects.get(id=pk)
+            sale = Sale.objects.get(id=id_)
         except Sale.DoesNotExist:
             pass  # nothing to do
         else:
             sale.delete()
-            messages.error(request, f"販売情報が削除されました", extra_tags="danger")
+            count += 1
+
+    if count:
+        messages.error(request, "販売情報が削除されました", extra_tags="danger")
 
     return redirect("sales:top")
 

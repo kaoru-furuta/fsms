@@ -10,7 +10,7 @@ pytestmark = pytest.mark.django_db
 def setup_client(client):
     user = baker.make(settings.AUTH_USER_MODEL)
     fruit = baker.make("fruits.Fruit", name="みかん")
-    baker.make("sales.Sale", fruit=fruit)
+    baker.make("sales.Sale", id=1, fruit=fruit)
     client.force_login(user)
 
 
@@ -84,14 +84,14 @@ def test_edit_submit_with_wrong_data(client):
 
 
 def test_delete_submit(client):
-    response = client.post("/sale/1/delete/", follow=True)
+    response = client.post(f"/sale/delete/", data={f"option-1": "delete"}, follow=True)
 
     assert response.status_code == 200
     assert "みかん" not in response.content.decode("utf-8")
 
 
 def test_delete_with_wrong_data(client):
-    response = client.post("/sale/2/delete/", follow=True)
+    response = client.post(f"/sale/delete/", data={f"option-0": "delete"}, follow=True)
 
     assert response.status_code == 200
     assert "みかん" in response.content.decode("utf-8")

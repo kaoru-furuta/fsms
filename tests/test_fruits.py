@@ -116,7 +116,9 @@ def test_delete_submit(client):
     assert Fruit.objects.count() == 1
 
     # act
-    response = client.post(f"/fruit/{fruit.id}/delete/", follow=True)
+    response = client.post(
+        f"/fruit/delete/", data={f"option-{fruit.id}": "delete"}, follow=True
+    )
 
     # assert
     assert response.status_code == 200
@@ -129,7 +131,7 @@ def test_delete_with_wrong_data(client, fruit_list):
     assert Fruit.objects.count() == 10
 
     # act
-    response = client.post("/fruit/11/delete/", follow=True)
+    response = client.post(f"/fruit/delete/", data={f"option-0": "delete"}, follow=True)
 
     # assert
     assert response.status_code == 200
