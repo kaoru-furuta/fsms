@@ -30,7 +30,7 @@ def delete(request, pk):
 
 
 class IndexView(SuccessMessageMixin, LoginRequiredMixin, FormMixin, ListView):
-    paginate_by = 3
+    paginate_by = 10
     template_name = "sales/top.html"
     form_class = UploadFileForm
     success_url = reverse_lazy("sales:top")

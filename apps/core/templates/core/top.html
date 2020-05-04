@@ -1,11 +1,11 @@
 {% extends 'core/layout.html' %}
 {% block content %}
-<h1>管理 TOP</h1>
-<div class="row">
-    <div class="col-md-6 offset-md-3">
-        <a class="btn btn-outline-primary btn-lg btn-block" href="{% url 'fruits:top' %}">果物マスタ管理</a>
-        <a class="btn btn-outline-primary btn-lg btn-block" href="{% url 'sales:top' %}">販売情報管理</a>
-        <a class="btn btn-outline-primary btn-lg btn-block" href="{% url 'summaries:top' %}">販売統計情報</a>
+    <h1>管理 TOP</h1>
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <a class="btn btn-outline-primary btn-lg btn-block" href="{% url 'fruits:top' %}">果物マスタ管理</a>
+            <a class="btn btn-outline-primary btn-lg btn-block" href="{% url 'sales:top' %}">販売情報管理</a>
+            <a class="btn btn-outline-primary btn-lg btn-block" href="{% url 'summaries:top' %}">販売統計情報</a>
+        </div>
     </div>
-</div>
 {% endblock %}
