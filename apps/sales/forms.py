@@ -30,5 +30,18 @@ class SaleForm(forms.ModelForm):
         fields = ("fruit_list", "number", "sold_at")
 
 
+class SearchForm(forms.Form):
+    fruit = forms.ChoiceField(
+        required=False,
+        choices=get_fruit_list,
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+    number = forms.IntegerField(
+        required=False,
+        min_value=1,
+        widget=forms.NumberInput(attrs={"class": "form-control"}),
+    )
+
+
 class UploadFileForm(forms.Form):
     file = forms.FileField()

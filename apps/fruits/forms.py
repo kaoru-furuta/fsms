@@ -12,3 +12,9 @@ class FruitForm(forms.ModelForm):
     class Meta:
         model = Fruit
         fields = ("name", "price")
+
+
+class SearchForm(forms.Form):
+    name = forms.CharField(
+        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+    )

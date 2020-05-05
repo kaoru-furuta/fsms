@@ -11,7 +11,7 @@ from django.views.generic.edit import FormMixin
 
 from fruits.models import Fruit
 
-from .forms import SaleForm, UploadFileForm
+from .forms import SaleForm, SearchForm, UploadFileForm
 from .models import Sale
 
 
@@ -41,7 +41,7 @@ def delete(request):
 
 
 class IndexView(SuccessMessageMixin, LoginRequiredMixin, FormMixin, ListView):
-    paginate_by = 10
+    paginate_by = 3
     template_name = "sales/top.html"
     form_class = UploadFileForm
     success_url = reverse_lazy("sales:top")
@@ -51,11 +51,18 @@ class IndexView(SuccessMessageMixin, LoginRequiredMixin, FormMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         context["form"] = UploadFileForm
+        context["search_form"] = SearchForm(self.request.GET)
 
         return context
 
     def get_queryset(self):
-        return Sale.objects.order_by("-sold_at").all()
+        form = SearchForm(self.request.GET)
+        if not form.is_valid():
+            return Sale.objects.order_by("-sold_at")
+
+        return Sale.objects.filter(
+            **{k: v for k, v in form.cleaned_data.items() if v}
+        ).order_by("-sold_at")
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()

@@ -8,6 +8,19 @@
             <li class="breadcrumb-item active" aria-current="page">販売情報管理</li>
         </ol>
     </nav>
+    <form action="{% url 'sales:top' %}" method="get">
+        <div class="form-group row">
+            <label for="{{ search_form.fruit.id_for_label }}" class="col-1 col-form-label">果物</label>
+            <div class="col-3">{{ search_form.fruit }}</div>
+            <label for="{{ search_form.number.id_for_label }}" class="col-1 col-form-label">個数</label>
+            <div class="col-3">{{ search_form.number }}</div>
+        </div>
+        <div class="form-group row">
+            <div class="col">
+                <button type="submit" class="btn btn-primary">検索</button>
+            </div>
+        </div>
+    </form>
     <form action="{% url 'sales:delete' %}" method="post">
         {% csrf_token %}
         <table class="table table-hover">
@@ -48,13 +61,16 @@
         <nav>
             <ul class="pagination">
                 {% if page_obj.has_previous %}
-                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">前へ</a>
+                    <li class="page-item"><a class="page-link"
+                                             href="?page={{ page_obj.previous_page_number }}&fruit={{ search_form.fruit.value }}&number={{ search_form.number.value }}">前へ</a>
                     </li>
                 {% else %}
                     <li class="page-item disabled"><span class="page-link">前へ</span></li>
                 {% endif %}
                 　 {% if page_obj.has_next %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">次へ</a></li>
+                <li class="page-item"><a class="page-link"
+                                         href="?page={{ page_obj.next_page_number }}&fruit={{ search_form.fruit.value }}&number={{ search_form.number.value }}">次へ</a>
+                </li>
             {% else %}
                 <li class="page-item disabled"><span class="page-link">次へ</span></li>
             {% endif %}

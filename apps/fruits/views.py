@@ -5,16 +5,35 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView
+from django.views.generic.edit import FormMixin
 
-from .forms import FruitForm
+from .forms import FruitForm, SearchForm
 from .models import Fruit
 
 
-class IndexView(LoginRequiredMixin, ListView):
+class IndexView(LoginRequiredMixin, FormMixin, ListView):
     template_name = "fruits/top.html"
+    form_class = SearchForm
 
     def get_queryset(self):
-        return Fruit.objects.order_by("-updated_at").all()
+        form = SearchForm(self.request.GET)
+
+        if not form.is_valid():
+            return Fruit.objects.order_by("-updated_at")
+
+        query = Fruit.objects
+
+        if form.cleaned_data.get("name"):
+            query = query.filter(name__icontains=form.cleaned_data.get("name"))
+
+        return query.order_by("-updated_at")
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["form"] = SearchForm(self.request.GET)
+
+        return context
 
 
 class NewView(SuccessMessageMixin, LoginRequiredMixin, CreateView):

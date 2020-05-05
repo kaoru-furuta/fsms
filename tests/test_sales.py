@@ -3,6 +3,8 @@ from django.conf import settings
 from django.test import Client
 from model_bakery import baker
 
+from sales.models import Sale
+
 pytestmark = pytest.mark.django_db
 
 
@@ -84,10 +86,19 @@ def test_edit_submit_with_wrong_data(client):
 
 
 def test_delete_submit(client):
-    response = client.post(f"/sale/delete/", data={f"option-1": "delete"}, follow=True)
+    # arrange
+    sale = baker.make("sales.Sale")
+    assert Sale.objects.count() == 2
 
+    # act
+    response = client.post(
+        f"/sale/delete/", data={f"option-{sale.id}": "delete"}, follow=True
+    )
+
+    # assert
     assert response.status_code == 200
-    assert "みかん" not in response.content.decode("utf-8")
+    assert "sales/top.html" in response.template_name
+    assert Sale.objects.count() == 1
 
 
 def test_delete_with_wrong_data(client):
