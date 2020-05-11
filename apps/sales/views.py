@@ -41,7 +41,6 @@ def delete(request):
 
 
 class IndexView(SuccessMessageMixin, LoginRequiredMixin, FormMixin, ListView):
-    paginate_by = 3
     template_name = "sales/top.html"
     form_class = UploadFileForm
     success_url = reverse_lazy("sales:top")

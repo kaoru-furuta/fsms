@@ -4,3 +4,4 @@ __pycache__/
 logs/
 .tox/
 .mypy_cache/
+docker/

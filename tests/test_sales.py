@@ -11,8 +11,8 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture(autouse=True)
 def setup_client(client):
     user = baker.make(settings.AUTH_USER_MODEL)
-    fruit = baker.make("fruits.Fruit", name="みかん")
-    baker.make("sales.Sale", id=1, fruit=fruit)
+    fruit = baker.make("fruits.Fruit", id=999, name="みかん")
+    baker.make("sales.Sale", id=999, fruit=fruit)
     client.force_login(user)
 
 
@@ -40,7 +40,7 @@ def test_new(client):
 def test_new_submit(client):
     response = client.post(
         "/sale/new/",
-        data={"fruit_list": 1, "number": 1, "sold_at": "2018-12-13T12:13"},
+        data={"fruit_list": 999, "number": 1, "sold_at": "2018-12-13T12:13"},
         follow=True,
     )
 
@@ -59,15 +59,15 @@ def test_new_submit_with_wrong_data(client):
 
 
 def test_edit(client):
-    response = client.get("/sale/1/edit/", follow=True)
+    response = client.get("/sale/999/edit/", follow=True)
 
     assert response.status_code == 200
 
 
 def test_edit_submit(client):
     response = client.post(
-        "/sale/1/edit/",
-        data={"fruit_list": 1, "number": 1, "sold_at": "2018-12-14T12:14"},
+        "/sale/999/edit/",
+        data={"fruit_list": 999, "number": 1, "sold_at": "2018-12-14T12:14"},
         follow=True,
     )
 
@@ -77,7 +77,7 @@ def test_edit_submit(client):
 
 def test_edit_submit_with_wrong_data(client):
     response = client.post(
-        "/sale/1/edit/",
+        "/sale/999/edit/",
         data={"fruit_list": 2, "number": 1, "sold_at": "2018-12-14T12:14"},
         follow=True,
     )
@@ -87,7 +87,7 @@ def test_edit_submit_with_wrong_data(client):
 
 def test_delete_submit(client):
     # arrange
-    sale = baker.make("sales.Sale")
+    sale = baker.make("sales.Sale", id=2)
     assert Sale.objects.count() == 2
 
     # act

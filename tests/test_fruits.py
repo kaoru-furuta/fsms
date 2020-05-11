@@ -79,7 +79,7 @@ def test_new_submit_with_wrong_data(client):
 
 def test_edit(client, fruit_list):
     # act
-    response = client.get("/fruit/1/edit/", follow=True)
+    response = client.get(f"/fruit/{fruit_list[0].id}/edit/", follow=True)
 
     # assert
     assert response.status_code == 200
@@ -89,7 +89,9 @@ def test_edit(client, fruit_list):
 def test_edit_submit(client, fruit_list):
     # act
     response = client.post(
-        "/fruit/1/edit/", data={"name": "りんご", "price": 200}, follow=True
+        f"/fruit/{fruit_list[0].id}/edit/",
+        data={"name": "りんご", "price": 200},
+        follow=True,
     )
 
     # assert
@@ -101,7 +103,9 @@ def test_edit_submit(client, fruit_list):
 def test_edit_submit_with_wrong_data(client, fruit_list):
     # act
     response = client.post(
-        "/fruit/1/edit/", data={"name": "りんご", "price": "foo"}, follow=True
+        f"/fruit/{fruit_list[0].id}/edit/",
+        data={"name": "りんご", "price": "foo"},
+        follow=True,
     )
 
     # assert
