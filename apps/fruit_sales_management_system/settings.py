@@ -66,10 +66,10 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": "fsms",
-        "USER": "postgres",
+        "USER": "fsms",
         "PASSWORD": "password",
         "HOST": "localhost",
-        "PORT": 5432,
+        "PORT": 15432,
     }
 }
 
@@ -119,3 +119,5 @@ LOGGING = {
     },
     "loggers": {"django": {"handlers": ["file"], "level": "DEBUG", "propagate": True}},
 }
+
+AUTH_USER_MODEL = "core.User"

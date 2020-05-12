@@ -1,0 +1,12 @@
+[
+  {
+    "model": "core.User",
+    "pk": 1,
+    "fields": {
+      "username": "admin",
+      "password": "password",
+      "is_staff": true,
+      "is_superuser": true
+    }
+  }
+]

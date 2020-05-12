@@ -1,0 +1,32 @@
+[
+  {
+    "model": "sales.Sale",
+    "pk": 1,
+    "fields": {
+      "fruit": 1,
+      "number": 100,
+      "amount": 10000,
+      "sold_at": "2020-05-01T09:00:00+09:00"
+    }
+  },
+  {
+    "model": "sales.Sale",
+    "pk": 2,
+    "fields": {
+      "fruit": 2,
+      "number": 200,
+      "amount": 20000,
+      "sold_at": "2020-05-02T09:00:00+09:00"
+    }
+  },
+  {
+    "model": "sales.Sale",
+    "pk": 3,
+    "fields": {
+      "fruit": 3,
+      "number": 300,
+      "amount": 30000,
+      "sold_at": "2020-05-03T09:00:00+09:00"
+    }
+  }
+]
