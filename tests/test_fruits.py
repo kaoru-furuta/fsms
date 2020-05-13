@@ -1,7 +1,11 @@
+from datetime import datetime
+from io import BytesIO
+
 import pytest
 from django.conf import settings
 from django.core.management import call_command
 from django.test import Client
+from freezegun import freeze_time
 from model_bakery import baker
 
 from fruits.models import Fruit
@@ -54,15 +58,27 @@ def test_new(client):
 
 
 def test_new_submit(client):
+    # arrange
+    name = "りんご"
+    price = 200
+    image = BytesIO(b"image")
+    image.name = "りんご.png"
+
     # act
-    response = client.post(
-        "/fruit/new/", data={"name": "りんご", "price": 200}, follow=True
-    )
+    with freeze_time(datetime(2020, 5, 1, 0, 0, 0)):
+        response = client.post(
+            "/fruit/new/",
+            data={"name": name, "price": price, "image": image},
+            follow=True,
+        )
 
     # assert
+    fruit = Fruit.objects.first()
     assert response.status_code == 200
     assert "fruits/top.html" in response.template_name
-    assert Fruit.objects.filter(name="りんご", price=200).exists()
+    assert fruit.name == name
+    assert fruit.price == price
+    assert fruit.image.name == "りんご_20200501000000.png"
 
 
 def test_new_submit_with_wrong_data(client):
