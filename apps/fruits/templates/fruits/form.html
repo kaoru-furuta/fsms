@@ -8,7 +8,8 @@
             <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
         </ol>
     </nav>
-    <form method="post" class="form-horizontal">
+    {{ form.errors }}
+    <form method="post" enctype="multipart/form-data" class="form-horizontal">
         {% csrf_token %}
         <div class="form-group">
             <label for="{{ form.name.id_for_label }}" class="col-md-4 control-label">名称</label>
@@ -17,6 +18,11 @@
         <div class="form-group">
             <label for="{{ form.price.id_for_label }}" class="col-md-4 control-label">単価</label>
             <div class="col-md-4">{{ form.price }}</div>
+        </div>
+        <div class="form-group">
+            <label for="{{ form.image.id_for_label }}" class="col-md-4 control-label">画像</label>
+            <span>{{ form.image.filename }}</span>
+            <div class="col-md-4">{{ form.image }}</div>
         </div>
         <div class="form-group">
             <div class="col-md-4">

@@ -103,6 +103,10 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+MEDIA_URL = "/media/"
+
 LOGIN_URL = "/login/"
 
 LOGIN_REDIRECT_URL = "core:top"
@@ -121,3 +125,5 @@ LOGGING = {
 }
 
 AUTH_USER_MODEL = "core.User"
+
+DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"

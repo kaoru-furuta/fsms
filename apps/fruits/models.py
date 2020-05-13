@@ -5,6 +5,7 @@ class Fruit(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=32, null=False, unique=True)
     price = models.IntegerField(null=False)
+    image = models.FileField(null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

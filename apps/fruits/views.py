@@ -84,3 +84,13 @@ def delete(request):
             messages.error(request, f"{fruit.name} が削除されました", extra_tags="danger")
 
     return redirect("fruits:top")
+
+
+# from django.http import FileResponse
+# ...
+# ...
+#
+# def download(request, pk):
+#     upload_file = get_object_or_404(UploadFile, pk=pk)
+#     file = upload_file.file  # ファイル本体
+#     return FileResponse(file)

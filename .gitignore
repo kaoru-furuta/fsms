@@ -5,3 +5,5 @@ logs/
 .tox/
 .mypy_cache/
 docker/
+apps/media/*
+!apps/media/.gitkeep
