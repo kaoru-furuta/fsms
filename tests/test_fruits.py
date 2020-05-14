@@ -1,8 +1,8 @@
 from datetime import datetime
-from io import BytesIO
 
 import pytest
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.core.management import call_command
 from django.test import Client
 from freezegun import freeze_time
@@ -61,9 +61,8 @@ def test_new_submit(client):
     # arrange
     name = "りんご"
     price = 200
-    image = BytesIO(b"image")
     filename = "りんご.png"
-    image.name = filename
+    image = ContentFile(b"image", name=filename)
 
     # act
     with freeze_time(datetime(2020, 5, 1, 0, 0, 0)):
