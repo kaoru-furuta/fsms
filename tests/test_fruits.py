@@ -62,7 +62,8 @@ def test_new_submit(client):
     name = "りんご"
     price = 200
     image = BytesIO(b"image")
-    image.name = "りんご.png"
+    filename = "りんご.png"
+    image.name = filename
 
     # act
     with freeze_time(datetime(2020, 5, 1, 0, 0, 0)):
@@ -78,7 +79,7 @@ def test_new_submit(client):
     assert "fruits/top.html" in response.template_name
     assert fruit.name == name
     assert fruit.price == price
-    assert fruit.image.name == "りんご_20200501000000.png"
+    assert fruit.image.name == filename
 
 
 def test_new_submit_with_wrong_data(client):

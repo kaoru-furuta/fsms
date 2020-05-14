@@ -1,5 +1,4 @@
-from datetime import datetime
-from os.path import splitext
+import unicodedata
 
 from django import forms
 
@@ -21,9 +20,11 @@ class FruitForm(forms.ModelForm):
         if not data:
             return data
 
-        # ファイル名が重複しないように現在時刻を追加
-        basename, ext = splitext(data.name)
-        data.name = f"{basename}_{datetime.now().strftime('%Y%m%d%H%M%S')}{ext}"
+        # Mac 環境などでファイル名が NFD になっていることがあるので NFC に変換しておく
+        data.name = unicodedata.normalize("NFC", data.name)
+
+        if Fruit.objects.filter(image=data.name).exists():
+            raise forms.ValidationError("ファイル名が重複しています。")
 
         return data
 
