@@ -1,119 +1,120 @@
+from datetime import datetime
+
 import pytest
 from django.conf import settings
-from django.test import Client
 from model_bakery import baker
+from rest_framework.test import APIClient
 
 from sales.models import Sale
 
 pytestmark = pytest.mark.django_db
 
 
-@pytest.fixture(autouse=True)
-def setup_client(client):
+@pytest.fixture()
+def api_client():
     user = baker.make(settings.AUTH_USER_MODEL)
-    fruit = baker.make("fruits.Fruit", id=999, name="みかん")
-    baker.make("sales.Sale", id=999, fruit=fruit)
+    client = APIClient()
     client.force_login(user)
+    return client
 
 
-def test_top(client):
-    response = client.get("/sale/", follow=True)
+@pytest.fixture
+def sale():
+    fruit = baker.make("fruits.Fruit", id=999, name="みかん")
+    sale = baker.make("sales.Sale", id=999, fruit=fruit)
+    return sale
+
+
+def test_top(api_client, sale):
+    response = api_client.get("/api/sales/")
 
     assert response.status_code == 200
-    assert "みかん" in response.content.decode("utf-8")
+    assert response.json()[0]["id"] == sale.id
 
 
 def test_top_with_no_login():
-    client = Client()
+    api_client = APIClient()
 
-    response = client.get("/sale/", follow=True)
+    response = api_client.get("/api/sales/")
 
-    assert response.status_code == 200
-
-
-def test_new(client):
-    response = client.get("/sale/new/", follow=True)
-
-    assert response.status_code == 200
+    assert response.status_code == 403
 
 
-def test_new_submit(client):
-    response = client.post(
-        "/sale/new/",
-        data={"fruit_list": 999, "number": 1, "sold_at": "2018-12-13T12:13"},
-        follow=True,
+def test_new_submit(api_client, sale):
+    response = api_client.post(
+        "/api/sales/",
+        data={
+            "fruit": 999,
+            "number": 1,
+            "amount": 100,
+            "sold_at": datetime(2018, 12, 13, 12, 13, 0),
+        },
+        format="json",
     )
 
-    assert response.status_code == 200
-    assert "2018/12/13 12:13" in response.content.decode("utf-8")
+    assert response.status_code == 201
 
 
-def test_new_submit_with_wrong_data(client):
-    response = client.post(
-        "/sale/new/",
-        data={"fruit_list": 2, "number": 1, "sold_at": "2018-12-13T12:13"},
-        follow=True,
+def test_new_submit_with_wrong_data(api_client, sale):
+    response = api_client.post(
+        "/api/sales/",
+        data={
+            "fruit": 2,
+            "number": 1,
+            "amount": 100,
+            "sold_at": datetime(2018, 12, 13, 12, 13, 0),
+        },
+        format="json",
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 400
 
 
-def test_edit(client):
-    response = client.get("/sale/999/edit/", follow=True)
-
-    assert response.status_code == 200
-
-
-def test_edit_submit(client):
-    response = client.post(
-        "/sale/999/edit/",
-        data={"fruit_list": 999, "number": 1, "sold_at": "2018-12-14T12:14"},
-        follow=True,
-    )
-
-    assert response.status_code == 200
-    assert "2018/12/14 12:14" in response.content.decode("utf-8")
-
-
-def test_edit_submit_with_wrong_data(client):
-    response = client.post(
-        "/sale/999/edit/",
-        data={"fruit_list": 2, "number": 1, "sold_at": "2018-12-14T12:14"},
-        follow=True,
+def test_edit_submit(api_client, sale):
+    response = api_client.patch(
+        "/api/sales/999/",
+        data={
+            "fruit": 999,
+            "number": 1,
+            "amount": 100,
+            "sold_at": datetime(2018, 12, 14, 12, 14, 0),
+        },
+        format="json",
     )
 
     assert response.status_code == 200
 
 
-def test_delete_submit(client):
+def test_edit_submit_with_wrong_data(api_client, sale):
+    response = api_client.patch(
+        "/api/sales/999/",
+        data={
+            "fruit": 2,
+            "number": 1,
+            "amount": 100,
+            "sold_at": datetime(2018, 12, 14, 12, 14, 0),
+        },
+        format="json",
+    )
+
+    assert response.status_code == 400
+
+
+def test_delete_submit(api_client, sale):
     # arrange
-    sale = baker.make("sales.Sale", id=2)
-    assert Sale.objects.count() == 2
-
-    # act
-    response = client.post(
-        f"/sale/delete/", data={f"option-{sale.id}": "delete"}, follow=True
-    )
-
-    # assert
-    assert response.status_code == 200
-    assert "sales/top.html" in response.template_name
     assert Sale.objects.count() == 1
 
+    # act
+    response = api_client.delete(f"/api/sales/{sale.id}/", format="json")
 
-def test_delete_with_wrong_data(client):
-    response = client.post(f"/sale/delete/", data={f"option-0": "delete"}, follow=True)
-
-    assert response.status_code == 200
-    assert "みかん" in response.content.decode("utf-8")
+    # assert
+    assert response.status_code == 204
+    assert Sale.objects.count() == 0
 
 
-def test_upload_submit(client):
-    with open("tests/upload.csv") as fr:
-        response = client.post("/sale/", data={"file": fr}, follow=True)
+def test_delete_with_wrong_data(api_client, sale):
+    # act
+    response = api_client.delete(f"/api/sales/0/", format="json")
 
-    assert response.status_code == 200
-    assert "2020/11/11 11:11" in response.content.decode("utf-8")
-    assert "2021/13/11 11:11" not in response.content.decode("utf-8")
-    assert "2022/11/11 11:11" not in response.content.decode("utf-8")
-    assert "2023/12/11 11:11" not in response.content.decode("utf-8")
+    # assert
+    assert response.status_code == 404

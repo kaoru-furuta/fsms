@@ -1,11 +1,13 @@
-from django.urls import path
+from django.conf.urls import include, url
+from rest_framework.routers import SimpleRouter
 
 from . import views
 
-app_name = "fruits"
+router = SimpleRouter()
+router.register(
+    r"", views.FruitViewSet, basename="fruits",
+)
+
 urlpatterns = [
-    path("", views.IndexView.as_view(), name="top"),
-    path("new/", views.NewView.as_view(), name="new"),
-    path("<int:pk>/edit/", views.EditView.as_view(), name="edit"),
-    path("delete/", views.delete, name="delete"),
+    url(r"", include(router.urls)),
 ]

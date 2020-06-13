@@ -4,60 +4,52 @@ import pytest
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.management import call_command
-from django.test import Client
 from freezegun import freeze_time
 from model_bakery import baker
+from rest_framework.test import APIClient
 
 from fruits.models import Fruit
 
 pytestmark = pytest.mark.django_db
 
 
-@pytest.fixture(autouse=True)
-def setup_client(client):
+@pytest.fixture()
+def api_client():
     user = baker.make(settings.AUTH_USER_MODEL)
+    client = APIClient()
     client.force_login(user)
+    return client
 
 
 @pytest.fixture
 def fruit_list():
     fruit_list = baker.make("fruits.Fruit", _quantity=10)
-    fruit_list.sort(key=lambda x: x.updated_at, reverse=True)
+    fruit_list.sort(key=lambda x: x.updated_at)
     return fruit_list
 
 
-def test_top(client, fruit_list):
+def test_top(api_client, fruit_list):
     # act
-    response = client.get("/fruit/", follow=True)
+    response = api_client.get("/api/fruits/")
 
     # assert
     assert response.status_code == 200
-    assert "fruits/top.html" in response.template_name
-    assert list(response.context["fruit_list"]) == fruit_list
+    assert response.json()[0]["id"] == fruit_list[0].id
+    assert response.json()[-1]["id"] == fruit_list[-1].id
 
 
 def test_top_with_no_login():
     # arrange
-    client = Client()
+    api_client = APIClient()
 
     # act
-    response = client.get("/fruit/", follow=True)
+    response = api_client.get("/api/fruits/")
 
     # assert
-    assert response.status_code == 200
-    assert "fruits/top.html" not in response.template_name
+    assert response.status_code == 403
 
 
-def test_new(client):
-    # act
-    response = client.get("/fruit/new/", follow=True)
-
-    # assert
-    assert response.status_code == 200
-    assert "fruits/form.html" in response.template_name
-
-
-def test_new_submit(client):
+def test_new_submit(api_client):
     # arrange
     name = "りんご"
     price = 200
@@ -66,96 +58,79 @@ def test_new_submit(client):
 
     # act
     with freeze_time(datetime(2020, 5, 1, 0, 0, 0)):
-        response = client.post(
-            "/fruit/new/",
+        response = api_client.post(
+            "/api/fruits/",
             data={"name": name, "price": price, "image": image},
-            follow=True,
+            format="multipart",
         )
 
     # assert
     fruit = Fruit.objects.first()
-    assert response.status_code == 200
-    assert "fruits/top.html" in response.template_name
+    assert response.status_code == 201, response.json()
     assert fruit.name == name
     assert fruit.price == price
     assert fruit.image.name == filename
 
 
-def test_new_submit_with_wrong_data(client):
+def test_new_submit_with_wrong_data(api_client):
     # act
-    response = client.post(
-        "/fruit/new/", data={"name": "みかん", "price": "foo"}, follow=True
+    response = api_client.post(
+        "/api/fruits/", data={"name": "みかん", "price": "foo"}, format="json"
     )
 
     # assert
-    assert response.status_code == 200
-    assert "fruits/form.html" in response.template_name
+    assert response.status_code == 400
     assert not Fruit.objects.filter(name="みかん").exists()
 
 
-def test_edit(client, fruit_list):
+def test_edit_submit(api_client, fruit_list):
     # act
-    response = client.get(f"/fruit/{fruit_list[0].id}/edit/", follow=True)
-
-    # assert
-    assert response.status_code == 200
-    assert "fruits/form.html" in response.template_name
-
-
-def test_edit_submit(client, fruit_list):
-    # act
-    response = client.post(
-        f"/fruit/{fruit_list[0].id}/edit/",
+    response = api_client.patch(
+        f"/api/fruits/{fruit_list[0].id}/",
         data={"name": "りんご", "price": 200},
-        follow=True,
+        format="json",
     )
 
     # assert
     assert response.status_code == 200
-    assert "fruits/top.html" in response.template_name
     assert Fruit.objects.filter(name="りんご", price=200).exists()
 
 
-def test_edit_submit_with_wrong_data(client, fruit_list):
+def test_edit_submit_with_wrong_data(api_client, fruit_list):
     # act
-    response = client.post(
-        f"/fruit/{fruit_list[0].id}/edit/",
+    response = api_client.patch(
+        f"/api/fruits/{fruit_list[0].id}/",
         data={"name": "りんご", "price": "foo"},
-        follow=True,
+        format="json",
     )
 
     # assert
-    assert response.status_code == 200
-    assert "fruits/form.html" in response.template_name
+    assert response.status_code == 400
     assert not Fruit.objects.filter(name="りんご").exists()
 
 
-def test_delete_submit(client):
+def test_delete_submit(api_client):
     # arrange
     fruit = baker.make("fruits.Fruit")
     assert Fruit.objects.count() == 1
 
     # act
-    response = client.post(
-        f"/fruit/delete/", data={f"option-{fruit.id}": "delete"}, follow=True
-    )
+    response = api_client.delete(f"/api/fruits/{fruit.id}/", format="json")
 
     # assert
-    assert response.status_code == 200
-    assert "fruits/top.html" in response.template_name
+    assert response.status_code == 204
     assert Fruit.objects.count() == 0
 
 
-def test_delete_with_wrong_data(client, fruit_list):
+def test_delete_with_wrong_data(api_client, fruit_list):
     # arrange
     assert Fruit.objects.count() == 10
 
     # act
-    response = client.post(f"/fruit/delete/", data={f"option-0": "delete"}, follow=True)
+    response = api_client.delete(f"/api/fruits/0/", format="json")
 
     # assert
-    assert response.status_code == 200
-    assert "fruits/top.html" in response.template_name
+    assert response.status_code == 404
     assert Fruit.objects.count() == 10
 
 

@@ -7,3 +7,4 @@ logs/
 docker/
 apps/media/*
 !apps/media/.gitkeep
+.DS_Store

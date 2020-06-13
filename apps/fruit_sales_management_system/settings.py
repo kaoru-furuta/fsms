@@ -24,9 +24,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "core.apps.CoreConfig",
+    "rest_framework",
     "fruits.apps.FruitsConfig",
     "sales.apps.SalesConfig",
-    "summaries.apps.SummariesConfig",
 ]
 
 MIDDLEWARE = [
@@ -64,12 +64,8 @@ WSGI_APPLICATION = "fruit_sales_management_system.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "fsms",
-        "USER": "fsms",
-        "PASSWORD": "password",
-        "HOST": "localhost",
-        "PORT": 15432,
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
     }
 }
 
