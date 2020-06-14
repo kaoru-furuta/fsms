@@ -1,16 +1,21 @@
 import os
 
+import environ
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
+env = environ.Env(DEBUG=(bool, False))
+environ.Env.read_env(env.str("ENV_PATH"))
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "r!c-l&b0z-@%)x8xr1g8%&nw7)xrc-58rlul945@z01d((j2&n"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = ["*"]
 
@@ -107,19 +112,14 @@ LOGIN_URL = "/login/"
 
 LOGIN_REDIRECT_URL = "core:top"
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "file": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": os.path.join(BASE_DIR, "logs/debug.log"),
-        },
-    },
-    "loggers": {"django": {"handlers": ["file"], "level": "DEBUG", "propagate": True}},
-}
-
 AUTH_USER_MODEL = "core.User"
 
-DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+DEFAULT_FILE_STORAGE = env("DEFAULT_FILE_STORAGE")
+
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+
+AWS_DEFAULT_ACL = None
+
+AWS_STORAGE_BUCKET_NAME = "fsms"

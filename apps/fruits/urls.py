@@ -1,13 +1,14 @@
-from django.conf.urls import include, url
+from django.urls import include, path
 from rest_framework.routers import SimpleRouter
 
 from . import views
 
 router = SimpleRouter()
 router.register(
-    r"", views.FruitViewSet, basename="fruits",
+    "", views.FruitViewSet, basename="fruits",
 )
 
 urlpatterns = [
-    url(r"", include(router.urls)),
+    path("", include(router.urls)),
+    path("download/<int:pk>/", views.download),
 ]

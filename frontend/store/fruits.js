@@ -9,15 +9,33 @@ export const actions = {
     return await this.$axios.$get(`/api/fruits/${id}/`)
   },
 
-  async createFruit(_, { name, price }) {
+  async createFruit(_, { name, price, image }) {
     const csrfToken = Cookies.get('csrftoken')
-    const headers = { 'X-CSRFToken': csrfToken }
-    await this.$axios.$post(`/api/fruits/`, { name, price }, { headers })
+    const headers = {
+      'X-CSRFToken': csrfToken,
+      'Content-Type': 'multipart/form-data'
+    }
+    const form = new FormData()
+    form.append('name', name)
+    form.append('price', price)
+    if (image) {
+      form.append('image', image)
+    }
+    await this.$axios.$post(`/api/fruits/`, form, { headers })
   },
 
-  async updateFruit(_, { id, name, price }) {
+  async updateFruit(_, { id, name, price, image }) {
     const csrfToken = Cookies.get('csrftoken')
-    const headers = { 'X-CSRFToken': csrfToken }
-    await this.$axios.$put(`/api/fruits/${id}/`, { name, price }, { headers })
+    const headers = {
+      'X-CSRFToken': csrfToken,
+      'Content-Type': 'multipart/form-data'
+    }
+    const form = new FormData()
+    form.append('name', name)
+    form.append('price', price)
+    if (image) {
+      form.append('image', image)
+    }
+    await this.$axios.$patch(`/api/fruits/${id}/`, form, { headers })
   }
 }

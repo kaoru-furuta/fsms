@@ -1,3 +1,5 @@
+from django.http import FileResponse
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
@@ -9,11 +11,9 @@ class FruitViewSet(viewsets.ModelViewSet):
     queryset = Fruit.objects
     serializer_class = FruitSerializer
     permission_classes = (IsAuthenticated,)
+    # parser_classes = [FormParser, MultiPartParser]
 
 
-# from django.http import FileResponse
-#
-# def download(request, pk):
-#     upload_file = get_object_or_404(UploadFile, pk=pk)
-#     file = upload_file.file  # ファイル本体
-#     return FileResponse(file)
+def download(request, pk):
+    fruit = get_object_or_404(Fruit, pk=pk)
+    return FileResponse(fruit.image)

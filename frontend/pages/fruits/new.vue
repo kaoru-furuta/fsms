@@ -9,6 +9,9 @@
         <v-col cols="4">
           <v-text-field v-model="price" label="価格"></v-text-field>
         </v-col>
+        <v-col cols="4">
+          <v-file-input @change="onImageChange" label="画像" />
+        </v-col>
       </v-row>
       <v-row>
         <v-col cols="4">
@@ -30,7 +33,8 @@ export default {
   data() {
     return {
       name: '',
-      price: null
+      price: null,
+      image: ''
     }
   },
   methods: {
@@ -38,13 +42,17 @@ export default {
       try {
         await this.$store.dispatch('fruits/createFruit', {
           name: this.name,
-          price: this.price
+          price: this.price,
+          image: this.image
         })
         this.$store.commit('snackbar/set', {
           message: '登録しました'
         })
         await this.$router.push({ name: 'fruits' })
       } catch (e) {}
+    },
+    onImageChange(image) {
+      this.image = image
     }
   }
 }
