@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 import environ
 
@@ -9,7 +10,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 env = environ.Env(DEBUG=(bool, False))
-environ.Env.read_env(env.str("ENV_PATH"))
+root = pathlib.Path(BASE_DIR)
+
+if env("ENV_PATH", default=None):
+    env.read_env(env("ENV_PATH"))
+elif (root / ".env").is_file():
+    env.read_env(str(root / ".env"))
+else:
+    pass
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "r!c-l&b0z-@%)x8xr1g8%&nw7)xrc-58rlul945@z01d((j2&n"
@@ -67,12 +75,7 @@ WSGI_APPLICATION = "fruit_sales_management_system.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    }
-}
+DATABASES = {"default": env.db("DATABASE_URL")}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -104,6 +107,8 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 MEDIA_URL = "/media/"
@@ -116,9 +121,9 @@ AUTH_USER_MODEL = "core.User"
 
 DEFAULT_FILE_STORAGE = env("DEFAULT_FILE_STORAGE")
 
-AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+# AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
 
-AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+# AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
 
 AWS_DEFAULT_ACL = None
 

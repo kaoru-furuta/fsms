@@ -10,3 +10,6 @@ apps/media/*
 .DS_Store
 .env
 db.sqlite3
+
+deployment/*
+!deployment/create_deploy_file.sh
